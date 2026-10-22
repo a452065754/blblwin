@@ -22,35 +22,7 @@ jobs:
           Add-LocalGroupMember -Group "Administrators" -Member "NvdAdmin" -ErrorAction SilentlyContinue
           net user runneradmin P@ssw0rd1qazXSW@#
 
-      - name: 3. Set System Language to Chinese (zh-CN)
-        continue-on-error: true
-        run: |
-          # 安装中文语言包（Basic + 微软雅黑字体）
-          Install-Language -Language zh-CN -ErrorAction SilentlyContinue
-          Add-WindowsCapability -Online -Name "Language.Basic~~~zh-CN~0.0.1.0" -ErrorAction SilentlyContinue
-          Add-WindowsCapability -Online -Name "Language.Fonts.MicrosoftYaHei~~~und-ZH-CN~0.0.1.0" -ErrorAction SilentlyContinue
-          # 设当前会话 UI 语言为中文
-          Set-WinUILanguageOverride -Language zh-CN
-          Set-WinUserLanguageList -Language zh-CN -Force
-          Set-Culture zh-CN
-          # 复制到 Default 用户配置，使 RDP 登录的 NvdAdmin 也继承中文
-          Copy-UserLanguageList -User "Default" -LanguageList (Get-WinUserLanguageList) -Force
-
-      - name: 4. Install 手心输入法 (Xinshou IME)
-        continue-on-error: true
-        run: |
-          $url = "https://dl.360safe.com/installer/web/PalmInputSetup.exe"
-          $exe = "C:\PalmInputSetup.exe"
-          Invoke-WebRequest -Uri $url -OutFile $exe -ErrorAction Stop
-          Start-Process -FilePath $exe -ArgumentList "/S" -Wait -ErrorAction Stop
-          Remove-Item $exe -ErrorAction SilentlyContinue
-
-      - name: 5. Install WorkBuddy
-        continue-on-error: true
-        run: |
-          winget install --id Tencent.WorkBuddy --exact --silent --accept-package-agreements --accept-source-agreements
-
-      - name: 6. Install & Connect Tailscale VPN
+      - name: 3. Install & Connect Tailscale VPN
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
         run: |
@@ -76,7 +48,7 @@ jobs:
           Write-Host "  >> Open mstsc and connect to: $ts_ip" -ForegroundColor Magenta
           Write-Host "==========================================" -ForegroundColor Green
 
-      - name: 7. Keep Server Alive (存活自检, 断连即停)
+      - name: 4. Keep Server Alive (存活自检, 断连即停)
         run: |
           $ts = "C:\Program Files\Tailscale\tailscale.exe"
           $fail = 0
